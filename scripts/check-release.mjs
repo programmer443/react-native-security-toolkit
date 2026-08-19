@@ -45,7 +45,9 @@ async function exists(file) {
 }
 
 async function main() {
-  const tag = process.argv[2];
+  // `workflow_dispatch` passes an empty string rather than omitting the argument,
+  // and an empty tag means "no tag to check", not "a tag that matches nothing".
+  const tag = process.argv[2]?.trim() || undefined;
   const manifests = [];
 
   for (const name of PACKAGES) {
