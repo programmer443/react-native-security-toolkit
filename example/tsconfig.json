@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "customConditions": ["react-native-security-toolkit-source", "react-native-strict-api"],
+    "types": []
+  },
+  "include": ["src/**/*", "*.js"]
+}

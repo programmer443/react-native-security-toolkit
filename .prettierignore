@@ -1,0 +1,28 @@
+# Dependencies and build output
+node_modules/
+lib/
+dist/
+coverage/
+pnpm-lock.yaml
+
+# Native build output and generated code
+**/build/
+**/.build/
+**/.swiftpm/
+**/.cxx/
+**/generated/
+example/ios/Pods/
+example/ios/*.xcworkspace/
+**/DerivedData/
+
+# Third-party animation JSON — machine-generated, not ours to format
+example/src/animations/*.json
+
+# Author-owned prose — formatting is not ours to change.
+CLAUDE.md
+
+# Deliberately insecure fixtures: formatting them would obscure what they test.
+fixtures/
+
+# Generated knowledge snapshots (see packages/auditor/scripts/sync-knowledge.mjs).
+packages/auditor/src/knowledge/snapshots/

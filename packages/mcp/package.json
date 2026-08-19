@@ -1,0 +1,75 @@
+{
+  "name": "@rn-security/mcp",
+  "version": "0.1.0",
+  "description": "Model Context Protocol server for the React Native Security Toolkit: exposes deterministic security findings, with severity and OWASP/CWE references, to whichever AI model you already use. No API key, no vendor, no source upload.",
+  "type": "module",
+  "bin": {
+    "rn-security-mcp": "./bin/rn-security-mcp.mjs"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "!**/__tests__",
+    "!**/*.test.*",
+    "!**/*.map"
+  ],
+  "engines": {
+    "node": ">=22.11.0"
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.build.json",
+    "prepare": "tsc --project tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "jest",
+    "clean": "del-cli dist"
+  },
+  "keywords": [
+    "react-native",
+    "security",
+    "mcp",
+    "model-context-protocol",
+    "static-analysis",
+    "owasp",
+    "masvs",
+    "sast"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/programmer443/react-native-security-toolkit.git",
+    "directory": "packages/mcp"
+  },
+  "author": "Muhammad Ahmad <murtaza.irinatech@gmail.com> (https://github.com/programmer443)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/programmer443/react-native-security-toolkit/issues"
+  },
+  "homepage": "https://github.com/programmer443/react-native-security-toolkit#readme",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public",
+    "provenance": true
+  },
+  "dependencies": {
+    "@rn-security/auditor": "workspace:*"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/preset-env": "^7.28.0",
+    "@babel/preset-typescript": "^7.27.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^22.13.0",
+    "babel-jest": "^30.2.0",
+    "del-cli": "^7.0.0",
+    "jest": "^30.2.0",
+    "typescript": "^6.0.3"
+  }
+}

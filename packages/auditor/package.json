@@ -1,0 +1,76 @@
+{
+  "name": "@rn-security/auditor",
+  "version": "0.1.0",
+  "description": "Static application security analysis for React Native projects: file discovery, rule engine, findings, fingerprints and suppression. Developer and CI tooling \u2014 never shipped inside a mobile application.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "!**/__tests__",
+    "!**/*.test.*",
+    "!**/*.map"
+  ],
+  "engines": {
+    "node": ">=22.11.0"
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.build.json",
+    "prepare": "tsc --project tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "knowledge:sync": "node scripts/sync-knowledge.mjs",
+    "clean": "del-cli dist"
+  },
+  "keywords": [
+    "react-native",
+    "security",
+    "static-analysis",
+    "sast",
+    "mobile-security",
+    "owasp",
+    "masvs",
+    "devsecops"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/programmer443/react-native-security-toolkit.git",
+    "directory": "packages/auditor"
+  },
+  "author": "Muhammad Ahmad <murtaza.irinatech@gmail.com> (https://github.com/programmer443)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/programmer443/react-native-security-toolkit/issues"
+  },
+  "homepage": "https://github.com/programmer443/react-native-security-toolkit#readme",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public",
+    "provenance": true
+  },
+  "dependencies": {
+    "@babel/parser": "^7.29.8",
+    "@babel/types": "^7.29.8"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/preset-env": "^7.28.0",
+    "@babel/preset-typescript": "^7.27.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^22.13.0",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "babel-jest": "^30.2.0",
+    "del-cli": "^7.0.0",
+    "jest": "^30.2.0",
+    "typescript": "^6.0.3"
+  }
+}

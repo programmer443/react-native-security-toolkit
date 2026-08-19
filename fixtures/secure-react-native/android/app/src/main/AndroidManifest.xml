@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.fixture.secure">
+  <application
+    android:allowBackup="false"
+    android:usesCleartextTraffic="false"
+    android:networkSecurityConfig="@xml/network_security_config">
+    <activity android:name=".MainActivity" android:exported="true">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+    <service android:name=".SyncService" android:exported="false" />
+    <activity android:name=".LinkActivity" android:exported="true" android:permission="com.fixture.LINK">
+      <intent-filter android:autoVerify="true">
+        <action android:name="android.intent.action.VIEW" />
+        <data android:scheme="https" android:host="app.secure-fixture.test" />
+      </intent-filter>
+    </activity>
+  </application>
+</manifest>

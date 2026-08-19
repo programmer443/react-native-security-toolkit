@@ -1,0 +1,14 @@
+{
+  "name": "secure-react-native-fixture",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The same application shapes, written safely. Exists to catch false positives.",
+  "dependencies": {
+    "react": "19.2.3",
+    "react-native": "^0.87.0",
+    "expo-secure-store": "^14.0.0"
+  },
+  "peerDependencies": {
+    "react": "*"
+  }
+}

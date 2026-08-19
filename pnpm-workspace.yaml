@@ -1,0 +1,16 @@
+packages:
+  - 'packages/*'
+  - 'example'
+
+# React Native's Metro bundler, Gradle autolinking and CocoaPods all resolve
+# modules by walking real directories. pnpm's default isolated layout hides
+# transitive dependencies (notably @react-native/gradle-plugin) from that walk,
+# so this workspace uses an npm-style hoisted layout.
+nodeLinker: hoisted
+
+# Supply-chain hardening: dependencies may not run install scripts unless listed
+# here. Every entry is a deliberate decision, not a convenience.
+allowBuilds:
+  # Native resolver behind eslint-plugin-import-x; its postinstall selects the
+  # prebuilt binary for the host platform. Lint tooling only — never shipped.
+  unrs-resolver: true

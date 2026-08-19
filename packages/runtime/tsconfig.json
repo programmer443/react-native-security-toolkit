@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "paths": {
+      "react-native-security-toolkit": ["./src/index"]
+    },
+    "customConditions": ["react-native-security-toolkit-source", "react-native-strict-api"],
+    "types": ["jest"]
+  },
+  "include": ["src/**/*", "*.js", "*.ts"]
+}

@@ -1,0 +1,103 @@
+buildscript {
+  ext.RNSecurityToolkit = [
+    kotlinVersion: "2.0.21",
+    minSdkVersion: 24,
+    compileSdkVersion: 36,
+    // Pinned rather than defaulting to the highest NDK installed on the build
+    // machine, which is neither reproducible nor reliably complete. A consuming
+    // app can override it through rootProject.ext to match its own.
+    ndkVersion: "27.1.12297006"
+  ]
+
+  ext.getExtOrDefault = { prop ->
+    if (rootProject.ext.has(prop)) {
+      return rootProject.ext.get(prop)
+    }
+
+    return RNSecurityToolkit[prop]
+  }
+
+  repositories {
+    google()
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath "com.android.tools.build:gradle:8.7.2"
+    // noinspection DifferentKotlinGradleVersion
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${getExtOrDefault('kotlinVersion')}"
+  }
+}
+
+
+// Single source of truth for the engine version: the package manifest.
+def packageJson = new groovy.json.JsonSlurper().parse(file("../package.json"))
+
+// Opt-in, and off unless the consuming application says otherwise.
+def packageVisibilityEnabled =
+  rootProject.hasProperty("rnsecPackageVisibility")
+    ? rootProject.property("rnsecPackageVisibility").toString().toBoolean()
+    : false
+
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+
+apply plugin: "com.facebook.react"
+
+android {
+  namespace "com.rnsecurity"
+
+  compileSdkVersion getExtOrDefault("compileSdkVersion")
+  ndkVersion getExtOrDefault("ndkVersion")
+
+  buildFeatures {
+    buildConfig true
+  }
+
+  // Package visibility is opt-in. <queries> entries merge into the consuming
+  // application's manifest and appear in store review, so enabling them is the
+  // application author's decision. Set `rnsecPackageVisibility=true` in the
+  // app's gradle.properties to turn the root-manager package check on.
+  //
+  // The same flag drives a BuildConfig field, so the probe knows for certain
+  // whether it can see packages instead of trying to infer it — Android always
+  // exposes a few system packages regardless, which makes inference report a
+  // false negative as a clean result.
+  sourceSets {
+    main {
+      manifest.srcFile packageVisibilityEnabled
+        ? "src/main/AndroidManifest-queries.xml"
+        : "src/main/AndroidManifest.xml"
+    }
+  }
+
+  defaultConfig {
+    minSdkVersion getExtOrDefault("minSdkVersion")
+    buildConfigField "String", "ENGINE_VERSION", "\"${packageJson.version}\""
+    buildConfigField "boolean", "PACKAGE_VISIBILITY_DECLARED", "${packageVisibilityEnabled}"
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+
+  externalNativeBuild {
+    cmake {
+      path "src/main/cpp/CMakeLists.txt"
+    }
+  }
+
+  testOptions {
+    unitTests {
+      includeAndroidResources = true
+      returnDefaultValues = true
+    }
+  }
+}
+
+dependencies {
+  implementation "com.facebook.react:react-android"
+
+  testImplementation "junit:junit:4.13.2"
+}

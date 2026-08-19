@@ -1,0 +1,12 @@
+{
+  "name": "vulnerable-react-native-fixture",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Deliberately insecure fixture. Not an example to copy.",
+  "dependencies": {
+    "analytics-sdk": "*",
+    "internal-ui": "git://github.com/example/internal-ui.git",
+    "react": "19.2.3",
+    "react-native": "^0.87.0"
+  }
+}

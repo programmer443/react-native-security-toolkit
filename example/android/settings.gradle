@@ -1,0 +1,8 @@
+// This workspace uses a hoisted node_modules at the repository root (see
+// pnpm-workspace.yaml), so React Native build tooling is two levels up.
+pluginManagement { includeBuild("../../node_modules/@react-native/gradle-plugin") }
+plugins { id("com.facebook.react.settings") }
+extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autolinkLibrariesFromCommand() }
+rootProject.name = 'securitytoolkit.example'
+include ':app'
+includeBuild('../../node_modules/@react-native/gradle-plugin')

@@ -1,0 +1,126 @@
+{
+  "name": "react-native-security-toolkit",
+  "version": "0.1.0",
+  "description": "Comprehensive React Native mobile security toolkit providing Android/iOS runtime security checks, root and jailbreak detection, anti-debugging and anti-hooking signals, application integrity checks, secure hardware and biometric capabilities, network security checks, and a deterministic risk and policy engine.",
+  "main": "./lib/module/index.js",
+  "types": "./lib/typescript/src/index.d.ts",
+  "exports": {
+    ".": {
+      "react-native-security-toolkit-source": "./src/index.ts",
+      "types": "./lib/typescript/src/index.d.ts",
+      "default": "./lib/module/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "lib",
+    "android",
+    "ios",
+    "*.podspec",
+    "!ios/build",
+    "!android/build",
+    "!android/.cxx",
+    "!android/gradle",
+    "!android/gradlew",
+    "!android/gradlew.bat",
+    "!android/local.properties",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__",
+    "!**/*.test.ts",
+    "!**/*.test.tsx",
+    "!**/.*",
+    "Package.swift",
+    "!ios/EngineTests"
+  ],
+  "scripts": {
+    "build": "bob build",
+    "prepare": "bob build",
+    "typecheck": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "clean": "del-cli lib android/build",
+    "test:android": "cd ../../example/android && ./gradlew :react-native-security-toolkit:testDebugUnitTest --console=plain",
+    "test:ios": "swift test"
+  },
+  "keywords": [
+    "react-native",
+    "security",
+    "mobile-security",
+    "app-security",
+    "root-detection",
+    "jailbreak-detection",
+    "android-security",
+    "ios-security",
+    "anti-tamper",
+    "anti-debugging",
+    "anti-hooking",
+    "frida-detection",
+    "magisk-detection",
+    "owasp",
+    "masvs",
+    "devsecops"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/programmer443/react-native-security-toolkit.git",
+    "directory": "packages/runtime"
+  },
+  "author": "Muhammad Ahmad <murtaza.irinatech@gmail.com> (https://github.com/programmer443)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/programmer443/react-native-security-toolkit/issues"
+  },
+  "homepage": "https://github.com/programmer443/react-native-security-toolkit#readme",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public",
+    "provenance": true
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/preset-env": "^7.28.0",
+    "@babel/preset-typescript": "^7.27.0",
+    "@types/jest": "^30.0.0",
+    "@types/react": "^19.2.0",
+    "babel-jest": "^30.2.0",
+    "del-cli": "^7.0.0",
+    "jest": "^30.2.0",
+    "react": "19.2.3",
+    "react-native": "0.87.0",
+    "react-native-builder-bob": "^0.43.0",
+    "typescript": "^6.0.3"
+  },
+  "react-native-builder-bob": {
+    "source": "src",
+    "output": "lib",
+    "targets": [
+      [
+        "module",
+        {
+          "esm": true
+        }
+      ],
+      [
+        "typescript",
+        {
+          "project": "tsconfig.build.json"
+        }
+      ]
+    ]
+  },
+  "codegenConfig": {
+    "name": "SecurityToolkitSpec",
+    "type": "modules",
+    "jsSrcsDir": "src/specs",
+    "android": {
+      "javaPackageName": "com.rnsecurity"
+    }
+  }
+}

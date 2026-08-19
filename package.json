@@ -1,0 +1,47 @@
+{
+  "name": "react-native-security-toolkit-workspace",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Workspace root for the React Native Security Toolkit",
+  "license": "MIT",
+  "author": "Muhammad Ahmad <murtaza.irinatech@gmail.com> (https://github.com/programmer443)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/programmer443/react-native-security-toolkit.git"
+  },
+  "engines": {
+    "node": ">=22.11.0"
+  },
+  "packageManager": "pnpm@11.13.1",
+  "scripts": {
+    "build": "pnpm --filter \"./packages/*\" build",
+    "clean": "del-cli 'packages/*/lib' 'packages/*/dist' 'packages/*/android/build' 'example/android/build' 'example/android/app/build' 'example/ios/build'",
+    "example:android": "pnpm --filter react-native-security-toolkit-example android",
+    "example:ios": "pnpm --filter react-native-security-toolkit-example ios",
+    "example:start": "pnpm --filter react-native-security-toolkit-example start",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "knowledge:sync": "pnpm --filter @rn-security/auditor knowledge:sync",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "release:check": "node scripts/check-release.mjs",
+    "release:dry-run": "pnpm verify && pnpm build && pnpm security:audit && pnpm release:check && pnpm publish -r --filter \"./packages/*\" --access public --no-git-checks --dry-run",
+    "security:audit": "pnpm --filter @rn-security/auditor --filter @rn-security/cli build && node packages/cli/bin/rn-security.mjs audit . --fail-on high",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test"
+  },
+  "devDependencies": {
+    "@eslint/compat": "^2.1.0",
+    "@eslint/eslintrc": "^3.3.5",
+    "@eslint/js": "^10.0.1",
+    "@react-native/eslint-config": "0.85.0",
+    "del-cli": "^7.0.0",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-ft-flow": "^3.0.11",
+    "eslint-plugin-prettier": "^5.5.6",
+    "prettier": "^3.8.3",
+    "typescript": "^6.0.3"
+  }
+}

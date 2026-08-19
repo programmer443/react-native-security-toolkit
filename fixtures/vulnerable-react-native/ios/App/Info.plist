@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Deliberately insecure fixture. -->
+<plist version="1.0">
+<dict>
+  <key>CFBundleName</key>
+  <string>VulnerableFixture</string>
+  <key>NSAppTransportSecurity</key>
+  <dict>
+    <key>NSAllowsArbitraryLoads</key>
+    <true/>
+  </dict>
+</dict>
+</plist>

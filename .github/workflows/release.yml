@@ -1,0 +1,103 @@
+name: Release
+
+# Publishing is driven by a tag, so what ships is always a commit that exists in
+# the repository. `workflow_dispatch` is dry-run only — a release should never be
+# something anyone can trigger from a button by accident.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run every check and pack the packages without publishing'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+env:
+  # Never let a dependency's lifecycle script run implicitly.
+  npm_config_ignore_scripts: 'true'
+
+jobs:
+  publish:
+    name: Verify and publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Required for npm provenance: the registry verifies this workflow really
+      # built the artefact.
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # The same gates as CI. A release that skips them is a release that ships
+      # what CI would have rejected.
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm -r typecheck
+
+      - name: Unit tests
+        run: pnpm -r test
+
+      - name: Native engine version is in sync
+        run: node scripts/sync-native-version.mjs --check
+
+      - name: Build
+        run: pnpm build
+
+      - name: Security self-audit
+        run: pnpm security:audit
+
+      # Versions agree with each other and with the tag, every package has a
+      # readme, a licence and a working bin. npm publishes are immutable.
+      - name: Release preflight
+        run: node scripts/check-release.mjs "${{ github.ref_type == 'tag' && github.ref_name || '' }}"
+
+      - name: Inspect what would be published
+        run: pnpm -r --filter "./packages/*" exec npm pack --dry-run
+
+      - name: Publish to npm
+        if: github.ref_type == 'tag'
+        # `-r` publishes in dependency order and rewrites `workspace:*` ranges to
+        # the versions actually being released.
+        run: pnpm publish -r --filter "./packages/*" --access public --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # Provenance is read from each package's publishConfig; this makes the
+          # intent explicit at the point of publish as well.
+          NPM_CONFIG_PROVENANCE: 'true'
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Release ${{ github.ref_name }}"
+            echo
+            if [ "${{ github.ref_type }}" = "tag" ]; then
+              echo "Published from tag \`${{ github.ref_name }}\`."
+            else
+              echo "Dry run — every check ran, nothing was published."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

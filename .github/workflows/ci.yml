@@ -1,0 +1,158 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Least privilege by default; jobs opt in to more where they genuinely need it.
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Never let a dependency's lifecycle script run implicitly in CI.
+  npm_config_ignore_scripts: 'true'
+
+jobs:
+  verify:
+    name: Lint, typecheck and unit tests
+    runs-on: ubuntu-latest
+    # Only this job needs to publish alerts; every other job stays read-only.
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm -r typecheck
+
+      - name: Unit tests
+        run: pnpm -r test
+
+      - name: Native engine version is in sync
+        run: node scripts/sync-native-version.mjs --check
+
+      - name: Package build
+        run: pnpm build
+
+      # The toolkit scans its own repository (§58). Configured by
+      # security-toolkit.config.ts, which is also the worked example of the format.
+      - name: Security self-audit
+        run: pnpm security:audit
+
+      # Generated even when the audit gate fails, so the alerts still reach code
+      # scanning. `--min info` because GitHub does the filtering, and a finding
+      # missing from the SARIF is a finding nobody sees.
+      - name: Generate SARIF
+        if: always()
+        run: >
+          node packages/cli/bin/rn-security.mjs audit .
+          --format sarif --min info --out rn-security.sarif
+
+      - name: Upload SARIF to code scanning
+        if: always()
+        uses: github/codeql-action/upload-sarif@f3712979fa5f215279b101dd0a2e3bdfb4353324 # v3
+        with:
+          sarif_file: rn-security.sarif
+          category: rn-security-auditor
+
+  build-android:
+    name: Build Android
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Set up JDK
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Native unit tests
+        working-directory: example/android
+        run: ./gradlew :react-native-security-toolkit:testDebugUnitTest --console=plain
+
+      - name: Build example app
+        working-directory: example
+        run: pnpm build:android
+
+      # Google Play requires 16 KB page-size support for apps targeting Android
+      # 15+. Our own native library is the one we can guarantee, so assert it
+      # rather than trusting whichever NDK the runner happens to have.
+      - name: Native library is 16 KB aligned
+        run: |
+          set -euo pipefail
+          APK=$(find example/android/app/build/outputs/apk/debug -name '*.apk' | head -1)
+          unzip -o -q "$APK" 'lib/arm64-v8a/librnsecuritytoolkit.so' -d /tmp/apkcheck
+          READELF=$(find "$ANDROID_HOME"/ndk/*/toolchains/llvm/prebuilt/*/bin -name llvm-readelf | head -1)
+          ALIGN=$("$READELF" -l /tmp/apkcheck/lib/arm64-v8a/librnsecuritytoolkit.so | awk '/LOAD/{print $NF; exit}')
+          echo "LOAD alignment: $ALIGN"
+          test "$ALIGN" = "0x4000"
+
+  build-ios:
+    name: Build iOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: iOS engine unit tests
+        working-directory: packages/runtime
+        run: swift test
+
+      - name: Install pods
+        working-directory: example/ios
+        run: pod install
+
+      - name: Build example app
+        working-directory: example
+        run: pnpm build:ios

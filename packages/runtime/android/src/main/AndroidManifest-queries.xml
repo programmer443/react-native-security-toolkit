@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Opt-in package visibility for root-manager detection.
+
+  From Android 11 an application only sees packages it declares here. This
+  library does NOT use this manifest by default: <queries> entries merge into the
+  consuming application's manifest and are visible in store review, which makes
+  them the application author's decision rather than ours.
+
+  To enable, add to your app's gradle.properties:
+
+      rnsecPackageVisibility=true
+
+  Without it, RNSEC-ANDROID-ROOT-002 reports `indeterminate` rather than a
+  clean-looking false negative.
+
+  QUERY_ALL_PACKAGES is deliberately never used: it is a Play-policy-restricted
+  permission and would require a declared exemption.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <queries>
+    <package android:name="com.topjohnwu.magisk" />
+    <package android:name="io.github.huskydg.magisk" />
+    <package android:name="com.noshufou.android.su" />
+    <package android:name="com.noshufou.android.su.elite" />
+    <package android:name="eu.chainfire.supersu" />
+    <package android:name="com.koushikdutta.superuser" />
+    <package android:name="com.thirdparty.superuser" />
+    <package android:name="com.yellowes.su" />
+    <package android:name="me.weishu.kernelsu" />
+    <package android:name="com.rifsxd.ksunext" />
+    <package android:name="me.bmax.apatch" />
+  </queries>
+
+</manifest>

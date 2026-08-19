@@ -1,0 +1,113 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+vendor/bundle/
+
+# JavaScript build output
+lib/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Swift Package Manager (iOS engine unit tests)
+.build/
+.swiftpm/
+Package.resolved
+
+# React Native / Metro
+.metro-health-check*
+*.jsbundle
+
+# Android build output. These patterns are intentionally unanchored: build
+# directories appear under example/, packages/*/android/ and app modules, and a
+# root-anchored pattern silently misses every one of them.
+build/
+.cxx/
+.gradle/
+.kotlin/
+local.properties
+*.iml
+*.hprof
+captures/
+
+# iOS build output
+Pods/
+DerivedData/
+*.xcworkspace/
+!*.xcodeproj/project.pbxproj
+*.hmap
+*.ipa
+*.dSYM.zip
+*.xcuserstate
+xcuserdata/
+
+# Machine-local Xcode environment: holds an absolute path to this machine's node.
+# React Native's template ships `.xcode.env` versioned and this one not.
+.xcode.env.local
+
+# Generated code (Codegen output, regenerated on every build)
+**/generated/
+**/ReactCodegen/
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*~
+
+# Local tooling state
+.claude/
+.eslintcache
+.turbo/
+
+# Logs
+*.log
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+report.*.json
+
+# Reports produced by this toolkit itself. Committing a scan output would put a
+# machine-specific snapshot in the repository and rot from the first commit.
+rn-security.sarif
+rn-security-report.*
+
+# Env / secrets — never commit
+.env
+.env.*
+!.env.example
+*.pem
+*.p8
+*.p12
+*.keystore
+!debug.keystore
+*.mobileprovision
+
+# The project brief this toolkit was built against. It is instructions for an
+# AI assistant working on the repository, not documentation for people using it.
+CLAUDE.md
+
+# Re-included on purpose.
+#
+# A user-level ignore file (core.excludesFile) can exclude these by name — a
+# global `README.md`, `*.png` or `Podfile.lock` entry is common — and the result
+# is a published repository with no readme, no launcher icons and no reproducible
+# pod install, with nothing in the repository to explain why. A repository
+# .gitignore takes precedence over the global one, so these say plainly that this
+# project wants them.
+!README.md
+!**/README.md
+!*.png
+!**/*.png
+!Gemfile.lock
+!**/Gemfile.lock
+!Podfile.lock
+!**/Podfile.lock
+
+# ...but not inside vendored dependency trees. The broad negations above would
+# otherwise drag in a README from every installed gem, so this re-excludes them.
+# Later patterns win, which is why this block is last.
+vendor/bundle/**
+**/vendor/bundle/**
