@@ -7,11 +7,6 @@ on:
   push:
     tags: ['v*']
   workflow_dispatch:
-    inputs:
-      dry_run:
-        description: 'Run every check and pack the packages without publishing'
-        type: boolean
-        default: true
 
 permissions:
   contents: read
@@ -79,6 +74,7 @@ jobs:
         run: pnpm -r --filter "./packages/*" exec npm pack --dry-run
 
       - name: Publish to npm
+        id: publish
         if: github.ref_type == 'tag'
         # `-r` publishes in dependency order and rewrites `workspace:*` ranges to
         # the versions actually being released.
@@ -95,9 +91,15 @@ jobs:
           {
             echo "### Release ${{ github.ref_name }}"
             echo
-            if [ "${{ github.ref_type }}" = "tag" ]; then
+            if [ "${{ github.ref_type }}" != "tag" ]; then
+              echo "**Nothing was published.** A manual run is a rehearsal: every check ran and the"
+              echo "packages were packed, but publishing only happens for a pushed tag."
+              echo
+              echo "To publish: \`git tag -a vX.Y.Z -m \"vX.Y.Z\" && git push origin vX.Y.Z\`"
+            elif [ "${{ steps.publish.outcome }}" = "success" ]; then
               echo "Published from tag \`${{ github.ref_name }}\`."
             else
-              echo "Dry run — every check ran, nothing was published."
+              echo "**Publishing failed** for tag \`${{ github.ref_name }}\` — see the \"Publish to npm\" step."
+              echo "Nothing was published; the tag can be re-run once the cause is fixed."
             fi
           } >> "$GITHUB_STEP_SUMMARY"

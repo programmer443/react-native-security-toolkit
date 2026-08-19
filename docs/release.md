@@ -26,7 +26,9 @@ The `Release` workflow re-runs every CI gate, runs the preflight against the tag
 would be published, and publishes with `pnpm publish -r` — which resolves `workspace:*` ranges to the
 versions being released and publishes in dependency order.
 
-`workflow_dispatch` runs the same job **without publishing**, which is the way to rehearse.
+`workflow_dispatch` runs the same job **without publishing** — that is the rehearsal, and there is
+no switch to make it publish. Publishing is gated on the run being for a pushed tag, so a release
+is always a commit that exists in the repository rather than a button someone can hit by accident.
 
 ## What the preflight refuses to let through
 
