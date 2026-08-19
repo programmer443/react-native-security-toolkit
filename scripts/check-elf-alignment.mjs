@@ -14,10 +14,15 @@
  * 32-bit ABIs are reported but not enforced: the 16 KB page size applies to
  * 64-bit devices.
  *
- * Usage: node scripts/check-elf-alignment.mjs <file.so> [...]
+ * A directory argument is walked for `.so` files, and finding none is a
+ * failure rather than a silent pass — "nothing was checked" and "everything
+ * checked out" must not look alike in a CI log.
+ *
+ * Usage: node scripts/check-elf-alignment.mjs <file.so | directory> [...]
  */
 
 import fs from 'node:fs/promises';
+import path from 'node:path';
 import process from 'node:process';
 
 const REQUIRED_ALIGNMENT = 16 * 1024;
@@ -56,11 +61,40 @@ function loadSegmentAlignments(buffer) {
   return { is64Bit, alignments };
 }
 
+/** Expands directory arguments into the `.so` files they contain. */
+async function collectLibraries(targets) {
+  const files = [];
+
+  for (const target of targets) {
+    const stats = await fs.stat(target);
+    if (!stats.isDirectory()) {
+      files.push(target);
+      continue;
+    }
+    for (const entry of await fs.readdir(target, { recursive: true, withFileTypes: true })) {
+      if (entry.isFile() && entry.name.endsWith('.so')) {
+        files.push(path.join(entry.parentPath ?? entry.path, entry.name));
+      }
+    }
+  }
+
+  return files.sort();
+}
+
 async function main() {
-  const files = process.argv.slice(2);
-  if (files.length === 0) {
-    process.stderr.write('usage: node scripts/check-elf-alignment.mjs <file.so> [...]\n');
+  const targets = process.argv.slice(2);
+  if (targets.length === 0) {
+    process.stderr.write(
+      'usage: node scripts/check-elf-alignment.mjs <file.so | directory> [...]\n'
+    );
     process.exitCode = 2;
+    return;
+  }
+
+  const files = await collectLibraries(targets);
+  if (files.length === 0) {
+    process.stdout.write(`  FAIL  no .so files found in: ${targets.join(', ')}\n`);
+    process.exitCode = 1;
     return;
   }
 

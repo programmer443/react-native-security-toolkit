@@ -114,16 +114,21 @@ jobs:
         run: pnpm build:android
 
       # Google Play requires 16 KB page-size support for apps targeting Android
-      # 15+. Our own native library is the one we can guarantee, so assert it
-      # rather than trusting whichever NDK the runner happens to have.
+      # 15+. `react-native build-android` produces an app bundle, so the library
+      # is read out of the .aab — an .apk is accepted too, for when that command
+      # changes or someone runs this against a locally assembled build.
       - name: Native library is 16 KB aligned
         run: |
           set -euo pipefail
-          APK=$(find example/android/app/build/outputs/apk/debug -name '*.apk' -print -quit)
-          echo "APK: $APK"
-          rm -rf "${RUNNER_TEMP}/apkcheck"
-          unzip -o -q "$APK" 'lib/*/librnsecuritytoolkit.so' -d "${RUNNER_TEMP}/apkcheck"
-          node scripts/check-elf-alignment.mjs "${RUNNER_TEMP}"/apkcheck/lib/*/librnsecuritytoolkit.so
+          ARTIFACT=$(find example/android/app/build/outputs \( -name '*.aab' -o -name '*.apk' \) -print -quit)
+          if [ -z "$ARTIFACT" ]; then
+            echo "no .aab or .apk under example/android/app/build/outputs"
+            exit 1
+          fi
+          echo "artifact: $ARTIFACT"
+          rm -rf "${RUNNER_TEMP}/nativecheck"
+          unzip -o -q "$ARTIFACT" '*librnsecuritytoolkit.so' -d "${RUNNER_TEMP}/nativecheck"
+          node scripts/check-elf-alignment.mjs "${RUNNER_TEMP}/nativecheck"
 
   build-ios:
     name: Build iOS
